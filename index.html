@@ -1,0 +1,1544 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SGA·CHEM — Gestión de Químicos GHS | Res. 0773/2021</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+/* ===== RESET & BASE ===== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'IBM Plex Sans',sans-serif;background:#0d1117;color:#e6edf3;min-height:100vh;overflow-x:hidden}
+
+/* ===== DESIGN TOKENS ===== */
+:root{
+  --bg-base:#0d1117;
+  --bg-card:#161b22;
+  --bg-card-hover:#1c2230;
+  --bg-sidebar:#0d1117;
+  --border:#21262d;
+  --border-bright:#30363d;
+  --text-primary:#e6edf3;
+  --text-secondary:#8b949e;
+  --text-muted:#484f58;
+  --accent-orange:#ff6b00;
+  --accent-orange-dim:#cc5500;
+  --accent-orange-glow:rgba(255,107,0,0.15);
+  --accent-blue:#388bfd;
+  --accent-blue-dim:#1f6feb;
+  --accent-green:#3fb950;
+  --accent-yellow:#d29922;
+  --accent-red:#f85149;
+  --accent-purple:#8957e5;
+  --danger:#f85149;
+  --warning:#d29922;
+  --safe:#3fb950;
+  --radius:8px;
+  --radius-lg:12px;
+  --shadow:0 1px 3px rgba(0,0,0,.4),0 4px 12px rgba(0,0,0,.3);
+  --shadow-lg:0 8px 32px rgba(0,0,0,.5);
+  --transition:.18s ease;
+}
+
+/* ===== SIDEBAR ===== */
+.sidebar{
+  position:fixed;left:0;top:0;bottom:0;width:240px;
+  background:var(--bg-sidebar);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+  z-index:100;
+  transition:transform var(--transition);
+}
+.sidebar-logo{
+  padding:20px 16px 16px;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:12px;
+}
+.logo-icon{
+  width:38px;height:38px;
+  background:linear-gradient(135deg,var(--accent-orange),#ff9500);
+  border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+  box-shadow:0 0 20px var(--accent-orange-glow);
+}
+.logo-icon svg{width:22px;height:22px;fill:white}
+.logo-text{line-height:1.2}
+.logo-text strong{font-size:15px;font-weight:600;color:var(--text-primary);letter-spacing:.5px}
+.logo-text span{font-size:10px;color:var(--text-secondary);letter-spacing:1px;text-transform:uppercase;display:block}
+.nav-section{padding:12px 8px 4px;flex:1;overflow-y:auto}
+.nav-label{font-size:10px;font-weight:600;color:var(--text-muted);letter-spacing:1.2px;text-transform:uppercase;padding:0 8px 6px;margin-top:8px}
+.nav-item{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 12px;border-radius:var(--radius);
+  cursor:pointer;transition:all var(--transition);
+  font-size:13px;color:var(--text-secondary);
+  border:1px solid transparent;
+  margin-bottom:2px;
+  position:relative;
+}
+.nav-item:hover{background:var(--bg-card);color:var(--text-primary)}
+.nav-item.active{
+  background:var(--accent-orange-glow);
+  color:var(--accent-orange);
+  border-color:rgba(255,107,0,.25);
+  font-weight:500;
+}
+.nav-item i{width:16px;text-align:center;font-size:14px}
+.nav-badge{
+  margin-left:auto;
+  background:var(--accent-red);color:white;
+  font-size:10px;font-weight:600;
+  padding:2px 6px;border-radius:9px;
+  min-width:18px;text-align:center;
+}
+.nav-badge.orange{background:var(--accent-orange)}
+.nav-badge.green{background:var(--accent-green)}
+.sidebar-footer{
+  padding:12px 16px;
+  border-top:1px solid var(--border);
+  font-size:11px;color:var(--text-muted);
+}
+.sidebar-footer strong{color:var(--text-secondary);display:block;margin-bottom:2px}
+
+/* ===== MAIN ===== */
+.main{margin-left:240px;min-height:100vh;display:flex;flex-direction:column}
+
+/* ===== TOPBAR ===== */
+.topbar{
+  height:52px;
+  background:var(--bg-card);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;
+  padding:0 24px;gap:12px;
+  position:sticky;top:0;z-index:50;
+}
+.topbar-title{font-size:14px;font-weight:500;color:var(--text-primary);flex:1}
+.topbar-actions{display:flex;gap:8px;align-items:center}
+.search-wrap{position:relative;display:flex;align-items:center}
+.search-wrap i{position:absolute;left:10px;color:var(--text-muted);font-size:13px;pointer-events:none}
+.search-wrap input{
+  background:var(--bg-base);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:6px 12px 6px 32px;
+  font-size:13px;color:var(--text-primary);
+  font-family:inherit;
+  width:240px;
+  transition:border var(--transition);
+}
+.search-wrap input:focus{outline:none;border-color:var(--accent-orange);box-shadow:0 0 0 3px var(--accent-orange-glow)}
+.search-wrap input::placeholder{color:var(--text-muted)}
+
+/* ===== BUTTONS ===== */
+.btn{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:7px 14px;border-radius:var(--radius);
+  font-size:13px;font-weight:500;font-family:inherit;
+  cursor:pointer;border:1px solid;
+  transition:all var(--transition);
+  white-space:nowrap;
+}
+.btn-primary{background:var(--accent-orange);border-color:var(--accent-orange);color:white}
+.btn-primary:hover{background:var(--accent-orange-dim);border-color:var(--accent-orange-dim);box-shadow:0 0 12px var(--accent-orange-glow)}
+.btn-secondary{background:transparent;border-color:var(--border-bright);color:var(--text-primary)}
+.btn-secondary:hover{background:var(--bg-card-hover);border-color:var(--text-muted)}
+.btn-danger{background:transparent;border-color:var(--danger);color:var(--danger);font-size:12px;padding:5px 10px}
+.btn-danger:hover{background:rgba(248,81,73,.1)}
+.btn-ghost{background:transparent;border-color:transparent;color:var(--text-secondary);padding:6px 10px}
+.btn-ghost:hover{color:var(--text-primary);background:var(--bg-card)}
+.btn-sm{font-size:12px;padding:5px 10px}
+.btn-icon{padding:7px;border-radius:var(--radius);background:transparent;border:1px solid var(--border-bright);color:var(--text-secondary);cursor:pointer;transition:all var(--transition);font-size:14px}
+.btn-icon:hover{color:var(--text-primary);background:var(--bg-card)}
+
+/* ===== CONTENT ===== */
+.content{padding:24px;flex:1}
+.page{display:none}
+.page.active{display:block}
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;gap:16px}
+.page-header-text h2{font-size:20px;font-weight:600;color:var(--text-primary)}
+.page-header-text p{font-size:13px;color:var(--text-secondary);margin-top:4px}
+
+/* ===== STATS GRID ===== */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+.stat-card{
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:var(--radius-lg);
+  padding:16px 18px;
+  display:flex;align-items:center;gap:14px;
+  transition:border var(--transition);
+  position:relative;overflow:hidden;
+}
+.stat-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:var(--stat-color,var(--accent-orange));
+}
+.stat-card:hover{border-color:var(--border-bright)}
+.stat-icon{
+  width:40px;height:40px;border-radius:10px;
+  background:var(--stat-bg,rgba(255,107,0,.1));
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;color:var(--stat-color,var(--accent-orange));
+  flex-shrink:0;
+}
+.stat-info .stat-n{font-size:26px;font-weight:600;color:var(--text-primary);line-height:1;font-family:'IBM Plex Mono',monospace}
+.stat-info .stat-l{font-size:11px;color:var(--text-secondary);margin-top:4px;text-transform:uppercase;letter-spacing:.5px}
+
+/* ===== CARDS GRID ===== */
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.chem-card{
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:var(--radius-lg);
+  padding:16px;
+  transition:all var(--transition);
+  position:relative;
+  overflow:hidden;
+}
+.chem-card::after{
+  content:'';position:absolute;top:0;left:0;width:3px;bottom:0;
+  background:var(--card-accent,var(--accent-orange));
+  border-radius:4px 0 0 4px;
+}
+.chem-card:hover{border-color:var(--border-bright);background:var(--bg-card-hover);transform:translateY(-1px);box-shadow:var(--shadow)}
+.card-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+.card-name{font-size:14px;font-weight:600;color:var(--text-primary)}
+.card-formula{font-size:12px;color:var(--accent-orange);font-family:'IBM Plex Mono',monospace;margin-top:2px}
+.card-cas{font-size:11px;color:var(--text-muted);margin-top:1px}
+.nivel-badge{
+  padding:3px 9px;border-radius:20px;font-size:10px;font-weight:600;
+  letter-spacing:.5px;text-transform:uppercase;flex-shrink:0;
+}
+.nivel-alto{background:rgba(248,81,73,.15);color:var(--danger);border:1px solid rgba(248,81,73,.3)}
+.nivel-medio{background:rgba(210,153,34,.15);color:var(--warning);border:1px solid rgba(210,153,34,.3)}
+.nivel-bajo{background:rgba(63,185,80,.15);color:var(--safe);border:1px solid rgba(63,185,80,.3)}
+.picts-row{display:flex;gap:5px;flex-wrap:wrap;margin:10px 0}
+.pict-item{width:34px;height:34px;border:1px solid var(--border-bright);border-radius:6px;padding:2px;background:white;flex-shrink:0;cursor:default}
+.pict-item svg{width:100%;height:100%}
+.card-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.chip{font-size:10px;padding:3px 8px;border-radius:4px;font-weight:500;letter-spacing:.3px;font-family:'IBM Plex Mono',monospace}
+.chip-clase{background:rgba(56,139,253,.1);color:var(--accent-blue);border:1px solid rgba(56,139,253,.2)}
+.chip-h{background:rgba(248,81,73,.1);color:var(--danger);border:1px solid rgba(248,81,73,.15)}
+.chip-p{background:rgba(63,185,80,.1);color:var(--safe);border:1px solid rgba(63,185,80,.15)}
+.card-meta{
+  display:flex;flex-wrap:wrap;gap:8px;
+  margin-top:10px;padding-top:10px;
+  border-top:1px solid var(--border);
+  font-size:11px;color:var(--text-secondary);
+}
+.card-meta span{display:flex;align-items:center;gap:5px}
+.fds-tag{
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:11px;padding:3px 8px;border-radius:4px;
+  margin-top:6px;font-weight:500;cursor:pointer;
+}
+.fds-yes{background:rgba(63,185,80,.1);color:var(--safe);border:1px solid rgba(63,185,80,.2)}
+.fds-no{background:rgba(248,81,73,.08);color:var(--danger);border:1px solid rgba(248,81,73,.15)}
+.card-actions{display:flex;justify-content:flex-end;gap:6px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
+
+/* ===== MODAL ===== */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.65);
+  backdrop-filter:blur(4px);
+  z-index:500;
+  display:none;align-items:center;justify-content:center;
+  padding:16px;
+}
+.modal-overlay.open{display:flex}
+.modal{
+  background:var(--bg-card);
+  border:1px solid var(--border-bright);
+  border-radius:16px;
+  width:620px;max-width:100%;
+  max-height:92vh;overflow-y:auto;
+  box-shadow:var(--shadow-lg);
+  animation:modalIn .2s ease;
+}
+@keyframes modalIn{from{opacity:0;transform:translateY(-12px) scale(.97)}to{opacity:1;transform:none}}
+.modal-header{
+  padding:20px 24px 16px;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;background:var(--bg-card);z-index:2;
+  border-radius:16px 16px 0 0;
+}
+.modal-header h3{font-size:15px;font-weight:600;color:var(--text-primary);display:flex;align-items:center;gap:10px}
+.modal-header h3 i{color:var(--accent-orange)}
+.modal-body{padding:20px 24px}
+.modal-footer{padding:14px 24px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px;position:sticky;bottom:0;background:var(--bg-card);border-radius:0 0 16px 16px}
+
+/* ===== FORM ===== */
+.form-section{margin-bottom:20px}
+.form-section-title{font-size:11px;font-weight:600;color:var(--accent-orange);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.form-section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.form-row.full{grid-template-columns:1fr}
+.form-row.three{grid-template-columns:1fr 1fr 1fr}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-group label{font-size:11px;font-weight:500;color:var(--text-secondary);letter-spacing:.3px;text-transform:uppercase}
+.form-group input,.form-group select,.form-group textarea{
+  background:var(--bg-base);
+  border:1px solid var(--border-bright);
+  border-radius:var(--radius);
+  padding:8px 12px;
+  font-size:13px;color:var(--text-primary);
+  font-family:'IBM Plex Sans',sans-serif;
+  transition:border var(--transition);
+}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{
+  outline:none;border-color:var(--accent-orange);
+  box-shadow:0 0 0 3px var(--accent-orange-glow);
+}
+.form-group input::placeholder{color:var(--text-muted)}
+.form-group textarea{resize:vertical;min-height:70px}
+.form-group select option{background:var(--bg-card)}
+
+/* ===== PICTOGRAM SELECTOR ===== */
+.pict-grid{display:grid;grid-template-columns:repeat(9,1fr);gap:6px;margin-top:6px}
+.pict-opt{
+  aspect-ratio:1;border:2px solid var(--border-bright);border-radius:8px;
+  cursor:pointer;background:white;padding:3px;
+  transition:all var(--transition);position:relative;overflow:hidden;
+}
+.pict-opt:hover{border-color:var(--accent-orange);transform:scale(1.05)}
+.pict-opt.selected{border-color:var(--accent-orange);box-shadow:0 0 0 2px var(--accent-orange-glow)}
+.pict-opt.selected::after{
+  content:'✓';position:absolute;bottom:1px;right:2px;
+  font-size:9px;color:var(--accent-orange);font-weight:700;
+}
+.pict-opt svg{width:100%;height:100%}
+.pict-label{font-size:9px;color:var(--text-muted);text-align:center;margin-top:2px}
+
+/* ===== MATRIX ===== */
+.matrix-container{overflow-x:auto;border-radius:var(--radius-lg);border:1px solid var(--border)}
+.matrix-table{width:100%;border-collapse:collapse;font-size:12px;min-width:500px}
+.matrix-table th{
+  background:var(--bg-base);
+  padding:10px 12px;
+  font-size:10px;font-weight:600;
+  color:var(--text-secondary);
+  text-transform:uppercase;letter-spacing:.5px;
+  border-bottom:1px solid var(--border);
+  text-align:center;
+}
+.matrix-table th:first-child{text-align:left;min-width:160px}
+.matrix-table td{
+  padding:9px 12px;
+  border-bottom:1px solid var(--border);
+  text-align:center;vertical-align:middle;
+}
+.matrix-table td:first-child{text-align:left;font-weight:500;font-size:12px;color:var(--text-primary)}
+.matrix-table tr:last-child td{border-bottom:none}
+.matrix-table tr:hover td{background:rgba(255,255,255,.02)}
+.m-A{background:rgba(63,185,80,.12);color:#56d364;font-weight:600;font-size:11px;border-radius:4px}
+.m-P{background:rgba(210,153,34,.12);color:#f0c060;font-weight:600;font-size:11px;border-radius:4px}
+.m-I{background:rgba(248,81,73,.15);color:#f85149;font-weight:600;font-size:11px;border-radius:4px}
+.m-self{background:rgba(56,139,253,.08);color:var(--text-muted);font-size:11px}
+.matrix-legend{display:flex;gap:20px;flex-wrap:wrap;margin-top:14px;padding:14px 16px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg)}
+.legend-item{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-secondary)}
+.legend-dot{width:32px;height:18px;border-radius:4px;font-size:10px;font-weight:600;display:flex;align-items:center;justify-content:center}
+
+/* ===== NORMATIVA ===== */
+.norm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px}
+.norm-card{
+  background:var(--bg-card);border:1px solid var(--border);
+  border-radius:var(--radius-lg);padding:18px;
+  border-left:3px solid var(--accent-orange);
+  transition:all var(--transition);
+}
+.norm-card:hover{border-color:var(--border-bright);background:var(--bg-card-hover)}
+.norm-card-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:10px}
+.norm-icon{width:36px;height:36px;border-radius:8px;background:var(--accent-orange-glow);display:flex;align-items:center;justify-content:center;color:var(--accent-orange);font-size:16px;flex-shrink:0}
+.norm-card h4{font-size:13px;font-weight:600;color:var(--text-primary)}
+.norm-card .norm-ref{font-size:10px;font-family:'IBM Plex Mono',monospace;color:var(--accent-orange);margin-top:2px}
+.norm-card p{font-size:12px;color:var(--text-secondary);line-height:1.65}
+.norm-tag{display:inline-flex;align-items:center;gap:4px;font-size:10px;padding:2px 7px;border-radius:3px;margin-right:4px;margin-top:8px;font-family:'IBM Plex Mono',monospace}
+.norm-tag.obligatorio{background:rgba(248,81,73,.1);color:var(--danger);border:1px solid rgba(248,81,73,.2)}
+.norm-tag.referencia{background:rgba(56,139,253,.1);color:var(--accent-blue);border:1px solid rgba(56,139,253,.2)}
+
+/* ===== FDS VIEWER ===== */
+.fds-sections{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;margin-top:14px}
+.fds-section-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:12px}
+.fds-section-card .sec-num{font-size:10px;font-family:'IBM Plex Mono',monospace;color:var(--accent-orange);font-weight:600}
+.fds-section-card h5{font-size:12px;font-weight:500;color:var(--text-primary);margin:2px 0 4px}
+.fds-section-card p{font-size:11px;color:var(--text-muted);line-height:1.5}
+
+/* ===== ALERT / BANNER ===== */
+.alert{
+  padding:10px 14px;border-radius:var(--radius);font-size:13px;
+  display:flex;align-items:flex-start;gap:10px;margin-bottom:16px;
+}
+.alert i{margin-top:1px;flex-shrink:0}
+.alert-info{background:rgba(56,139,253,.1);border:1px solid rgba(56,139,253,.2);color:#79c0ff}
+.alert-warning{background:rgba(210,153,34,.1);border:1px solid rgba(210,153,34,.2);color:#e3b341}
+.alert-danger{background:rgba(248,81,73,.1);border:1px solid rgba(248,81,73,.2);color:#ff7b72}
+
+/* ===== EMPTY STATE ===== */
+.empty-state{text-align:center;padding:48px 24px;color:var(--text-muted)}
+.empty-state .empty-icon{font-size:48px;display:block;margin-bottom:16px;opacity:.4}
+.empty-state h3{font-size:15px;font-weight:500;color:var(--text-secondary);margin-bottom:8px}
+.empty-state p{font-size:13px;margin-bottom:20px}
+
+/* ===== TOAST ===== */
+.toast-container{position:fixed;bottom:24px;right:24px;z-index:999;display:flex;flex-direction:column;gap:8px}
+.toast{
+  background:var(--bg-card);border:1px solid var(--border-bright);
+  border-radius:var(--radius);padding:12px 16px;
+  font-size:13px;color:var(--text-primary);
+  display:flex;align-items:center;gap:10px;
+  min-width:260px;box-shadow:var(--shadow-lg);
+  animation:toastIn .25s ease;
+}
+@keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:none}}
+.toast.success .toast-icon{color:var(--safe)}
+.toast.error .toast-icon{color:var(--danger)}
+.toast.info .toast-icon{color:var(--accent-blue)}
+
+/* ===== PROGRESS BAR ===== */
+.progress-wrap{margin-top:6px}
+.progress-bar{height:4px;background:var(--border);border-radius:4px;overflow:hidden;margin-top:4px}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent-orange),#ff9500);transition:width .5s ease}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:900px){
+  .sidebar{transform:translateX(-240px)}
+  .main{margin-left:0}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:600px){
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .form-row{grid-template-columns:1fr}
+  .form-row.three{grid-template-columns:1fr}
+  .pict-grid{grid-template-columns:repeat(5,1fr)}
+}
+
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border-bright);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--text-muted)}
+
+/* ===== HIGHLIGHT SELECTED NAV ===== */
+.dot-online{width:7px;height:7px;border-radius:50%;background:var(--safe);animation:pulse 2s infinite;flex-shrink:0}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+</style>
+</head>
+<body>
+
+<!-- ===== SIDEBAR ===== -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 2v6.5L6 14h12l-4-5.5V2M8 2h8M9 21h6M10 17v4M14 17v4M12 14v3" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+    </div>
+    <div class="logo-text">
+      <strong>SGA·CHEM</strong>
+      <span>Gestión GHS · Col</span>
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Principal</div>
+    <div class="nav-item active" onclick="showPage('dashboard')">
+      <i class="fa-solid fa-gauge-high"></i> Dashboard
+    </div>
+    <div class="nav-item" onclick="showPage('inventario')">
+      <i class="fa-solid fa-flask"></i> Inventario
+      <span class="nav-badge orange" id="nav-badge-inv">0</span>
+    </div>
+    <div class="nav-item" onclick="showPage('matriz')">
+      <i class="fa-solid fa-table-cells"></i> Matriz compatibilidad
+    </div>
+    <div class="nav-item" onclick="showPage('fds')">
+      <i class="fa-solid fa-file-shield"></i> Fichas de datos (FDS)
+      <span class="nav-badge green" id="nav-badge-fds">0</span>
+    </div>
+    <div class="nav-label">Marco legal</div>
+    <div class="nav-item" onclick="showPage('normativa')">
+      <i class="fa-solid fa-scale-balanced"></i> Normativa
+    </div>
+    <div class="nav-item" onclick="showPage('pictogramas')">
+      <i class="fa-solid fa-triangle-exclamation"></i> Pictogramas GHS
+    </div>
+    <div class="nav-label">Sistema</div>
+    <div class="nav-item" onclick="exportData()">
+      <i class="fa-solid fa-download"></i> Exportar datos
+    </div>
+    <div class="nav-item" onclick="importData()">
+      <i class="fa-solid fa-upload"></i> Importar datos
+    </div>
+  </div>
+
+  <div class="sidebar-footer">
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+      <div class="dot-online"></div>
+      <strong>Res. 0773/2021 · GHS Rev.9</strong>
+    </div>
+    Decreto 1496/2018 · SG-SST<br>
+    <span style="margin-top:4px;display:block">Centro Formación Integral Providencia</span>
+  </div>
+</aside>
+
+<!-- ===== MAIN CONTENT ===== -->
+<main class="main">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <span class="topbar-title" id="topbar-title">Dashboard</span>
+    <div class="topbar-actions">
+      <div class="search-wrap">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" id="global-search" placeholder="Buscar sustancia, CAS, clase..." oninput="globalSearch()">
+      </div>
+      <button class="btn btn-primary" onclick="showPage('inventario');openForm()">
+        <i class="fa-solid fa-plus"></i> Registrar sustancia
+      </button>
+    </div>
+  </div>
+
+  <!-- ============ DASHBOARD ============ -->
+  <div id="page-dashboard" class="content page active">
+    <div class="page-header">
+      <div class="page-header-text">
+        <h2>Panel de control</h2>
+        <p>Resumen del inventario de sustancias químicas peligrosas — SGA/GHS</p>
+      </div>
+    </div>
+
+    <div class="stats-grid" id="stats-grid">
+      <div class="stat-card" style="--stat-color:#ff6b00;--stat-bg:rgba(255,107,0,.1)">
+        <div class="stat-icon"><i class="fa-solid fa-flask"></i></div>
+        <div class="stat-info"><div class="stat-n" id="st-total">0</div><div class="stat-l">Sustancias registradas</div></div>
+      </div>
+      <div class="stat-card" style="--stat-color:#3fb950;--stat-bg:rgba(63,185,80,.1)">
+        <div class="stat-icon"><i class="fa-solid fa-file-check"></i></div>
+        <div class="stat-info"><div class="stat-n" id="st-fds">0</div><div class="stat-l">Con FDS disponible</div></div>
+      </div>
+      <div class="stat-card" style="--stat-color:#f85149;--stat-bg:rgba(248,81,73,.1)">
+        <div class="stat-icon"><i class="fa-solid fa-skull-crossbones"></i></div>
+        <div class="stat-info"><div class="stat-n" id="st-alto">0</div><div class="stat-l">Peligro alto (Cat. 1–2)</div></div>
+      </div>
+      <div class="stat-card" style="--stat-color:#f85149;--stat-bg:rgba(248,81,73,.08)">
+        <div class="stat-icon"><i class="fa-solid fa-ban"></i></div>
+        <div class="stat-info"><div class="stat-n" id="st-incompat">0</div><div class="stat-l">Incompatibilidades detectadas</div></div>
+      </div>
+    </div>
+
+    <!-- FDS Progress -->
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px;margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+        <span style="font-size:13px;font-weight:500;color:var(--text-primary)"><i class="fa-solid fa-file-shield" style="color:var(--accent-orange);margin-right:8px"></i>Cobertura de fichas de datos de seguridad (FDS)</span>
+        <span id="fds-pct" style="font-size:12px;font-family:'IBM Plex Mono',monospace;color:var(--accent-orange)">0%</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="fds-progress" style="width:0%"></div></div>
+      <p style="font-size:11px;color:var(--text-muted);margin-top:6px">La Resolución 0773/2021 y el Decreto 1496/2018 exigen FDS actualizada para toda sustancia peligrosa en el lugar de trabajo.</p>
+    </div>
+
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px">
+      <h3 style="font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:14px"><i class="fa-solid fa-clock-rotate-left" style="color:var(--accent-orange);margin-right:8px"></i>Últimas sustancias registradas</h3>
+      <div id="recent-list"></div>
+    </div>
+  </div>
+
+  <!-- ============ INVENTARIO ============ -->
+  <div id="page-inventario" class="content page">
+    <div class="page-header">
+      <div class="page-header-text">
+        <h2>Inventario de sustancias peligrosas</h2>
+        <p>Registro conforme a Res. 0773/2021 · Decreto 1496/2018 · SG-SST Decreto 1072/2015</p>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-secondary btn-sm" onclick="filterCards('all')" id="f-all">Todas</button>
+        <button class="btn btn-secondary btn-sm" onclick="filterCards('alto')" id="f-alto">Peligro alto</button>
+        <button class="btn btn-secondary btn-sm" onclick="filterCards('sin-fds')" id="f-sinfds">Sin FDS</button>
+        <button class="btn btn-primary" onclick="openForm()"><i class="fa-solid fa-plus"></i> Nueva sustancia</button>
+      </div>
+    </div>
+    <div id="cards-container"></div>
+  </div>
+
+  <!-- ============ MATRIZ ============ -->
+  <div id="page-matriz" class="content page">
+    <div class="page-header">
+      <div class="page-header-text">
+        <h2>Matriz de compatibilidad química</h2>
+        <p>Generada automáticamente · Basada en clases GHS · NFPA 400 · ILO Chemical Safety</p>
+      </div>
+    </div>
+    <div class="alert alert-warning"><i class="fa-solid fa-triangle-exclamation"></i><span>Esta matriz es orientativa según la clase de peligro GHS. Siempre verifique las secciones 7 (manipulación), 10 (reactividad) y 15 (regulaciones) de cada FDS específica antes de tomar decisiones de almacenamiento.</span></div>
+    <div id="matriz-container"></div>
+    <div class="matrix-legend" id="matrix-legend" style="display:none">
+      <div class="legend-item"><div class="legend-dot m-A">A</div> Compatible — almacenamiento conjunto con controles básicos</div>
+      <div class="legend-item"><div class="legend-dot m-P">P</div> Precaución — separación física requerida, revisar FDS</div>
+      <div class="legend-item"><div class="legend-dot m-I">I</div> Incompatible — no almacenar ni manipular juntos</div>
+    </div>
+  </div>
+
+  <!-- ============ FDS ============ -->
+  <div id="page-fds" class="content page">
+    <div class="page-header">
+      <div class="page-header-text">
+        <h2>Fichas de datos de seguridad (FDS)</h2>
+        <p>16 secciones obligatorias según GHS Rev.9 · NTC-ISO 11014 · Res. 0773/2021</p>
+      </div>
+    </div>
+    <div class="alert alert-info"><i class="fa-solid fa-circle-info"></i><span>La <strong>Resolución 0773/2021</strong> del MINSALUD establece los requisitos para las FDS en Colombia, alineada con el GHS Rev.9. Toda sustancia peligrosa debe contar con FDS disponible en el idioma español, actualizada y accesible para los trabajadores.</span></div>
+    <div id="fds-inventario-list" style="margin-bottom:24px"></div>
+    <h3 style="font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:14px"><i class="fa-solid fa-list-ol" style="color:var(--accent-orange);margin-right:8px"></i>Estructura obligatoria de la FDS — 16 secciones</h3>
+    <div class="fds-sections" id="fds-sections-grid"></div>
+  </div>
+
+  <!-- ============ NORMATIVA ============ -->
+  <div id="page-normativa" class="content page">
+    <div class="page-header">
+      <div class="page-header-text">
+        <h2>Marco normativo colombiano</h2>
+        <p>Normatividad SST aplicable a la gestión de sustancias químicas peligrosas</p>
+      </div>
+    </div>
+    <div class="norm-grid" id="norm-grid"></div>
+  </div>
+
+  <!-- ============ PICTOGRAMAS ============ -->
+  <div id="page-pictogramas" class="content page">
+    <div class="page-header">
+      <div class="page-header-text">
+        <h2>Pictogramas GHS — Referencia oficial</h2>
+        <p>9 pictogramas de peligro adoptados por Colombia · Decreto 1496/2018 · GHS Rev.9</p>
+      </div>
+    </div>
+    <div id="pict-reference-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-top:8px"></div>
+  </div>
+
+</main>
+
+<!-- ===== MODAL FORM ===== -->
+<div class="modal-overlay" id="modal-overlay" onclick="if(event.target===this)closeForm()">
+<div class="modal">
+  <div class="modal-header">
+    <h3><i class="fa-solid fa-flask-vial"></i> <span id="modal-title">Registrar sustancia química</span></h3>
+    <button class="btn-icon" onclick="closeForm()"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+  <div class="modal-body">
+
+    <div class="form-section">
+      <div class="form-section-title"><i class="fa-solid fa-tag" style="color:var(--accent-orange)"></i> Identificación</div>
+      <div class="form-row">
+        <div class="form-group"><label>Nombre de la sustancia *</label><input type="text" id="f-nombre" placeholder="Ej: Ácido sulfúrico"></div>
+        <div class="form-group"><label>Número CAS</label><input type="text" id="f-cas" placeholder="Ej: 7664-93-9"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Fórmula química</label><input type="text" id="f-formula" placeholder="Ej: H₂SO₄"></div>
+        <div class="form-group"><label>Sinónimos / nombre comercial</label><input type="text" id="f-sinonimo" placeholder="Ej: Aceite de vitriolo"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Área / proceso</label><input type="text" id="f-area" placeholder="Ej: Laboratorio, Mantenimiento"></div>
+        <div class="form-group"><label>Proveedor / fabricante</label><input type="text" id="f-proveedor" placeholder="Ej: Merck, Sigma-Aldrich"></div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="form-section-title"><i class="fa-solid fa-triangle-exclamation" style="color:var(--accent-orange)"></i> Clasificación GHS</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Clase de peligro GHS *</label>
+          <select id="f-clase" onchange="autoSelectPictogram()">
+            <option value="">Seleccione clase de peligro...</option>
+            <option value="explosivo">💥 Explosivo</option>
+            <option value="inflamable">🔥 Inflamable (líquido/gas/sólido)</option>
+            <option value="comburente">🔆 Comburente / Oxidante</option>
+            <option value="gas-presion">⚗️ Gas a presión</option>
+            <option value="corrosivo">🧪 Corrosivo</option>
+            <option value="toxico">☠️ Tóxico agudo</option>
+            <option value="nocivo">⚠️ Nocivo / Irritante</option>
+            <option value="sensitizante">🎗️ Sensibilizante / CMR / Carcinógeno</option>
+            <option value="ambiental">🌿 Peligroso para el medio ambiente</option>
+            <option value="reactivo">⚡ Reactivo / Inestable</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Nivel de peligro / Categoría</label>
+          <select id="f-nivel">
+            <option value="alto">Alto — Categoría 1 / 2</option>
+            <option value="medio">Medio — Categoría 3</option>
+            <option value="bajo">Bajo — Categoría 4 / 5</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:12px">
+        <label>Indicaciones de peligro (frases H) — separar con coma</label>
+        <input type="text" id="f-frases-h" placeholder="Ej: H314, H335, H290, H400">
+      </div>
+      <div class="form-group" style="margin-bottom:12px">
+        <label>Consejos de prudencia (frases P) — separar con coma</label>
+        <input type="text" id="f-frases-p" placeholder="Ej: P260, P264, P271, P303+P361+P353">
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="form-section-title"><i class="fa-solid fa-image" style="color:var(--accent-orange)"></i> Pictogramas GHS aplicables</div>
+      <p style="font-size:11px;color:var(--text-muted);margin-bottom:8px">Seleccione todos los pictogramas que correspondan según la clasificación. Al elegir la clase de peligro, se preselecciona el pictograma principal.</p>
+      <div class="pict-grid" id="pict-selector"></div>
+    </div>
+
+    <div class="form-section">
+      <div class="form-section-title"><i class="fa-solid fa-boxes-stacked" style="color:var(--accent-orange)"></i> Almacenamiento y cantidad</div>
+      <div class="form-row three">
+        <div class="form-group"><label>Cantidad almacenada</label><input type="text" id="f-cantidad" placeholder="Ej: 20 L"></div>
+        <div class="form-group"><label>Estado físico</label>
+          <select id="f-estado">
+            <option value="liquido">Líquido</option>
+            <option value="solido">Sólido</option>
+            <option value="gas">Gas</option>
+            <option value="aerosol">Aerosol</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Tipo de recipiente</label><input type="text" id="f-recipiente" placeholder="Ej: Bidón HDPE 25L"></div>
+      </div>
+      <div class="form-group" style="margin-bottom:12px">
+        <label>Ubicación de almacenamiento</label>
+        <input type="text" id="f-ubicacion" placeholder="Ej: Bodega química — Estante A3 — Armario ignífugo">
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="form-section-title"><i class="fa-solid fa-file-shield" style="color:var(--accent-orange)"></i> Ficha de datos de seguridad (FDS)</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Estado FDS</label>
+          <select id="f-fds">
+            <option value="si">✅ Disponible y vigente</option>
+            <option value="pendiente">⏳ En trámite / pendiente</option>
+            <option value="no">❌ No disponible</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Nombre / referencia del archivo FDS</label><input type="text" id="f-fds-ref" placeholder="Ej: FDS-AcidoSulfurico-v2024.pdf"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Versión FDS</label><input type="text" id="f-fds-ver" placeholder="Ej: Versión 3 — Ene 2024"></div>
+        <div class="form-group"><label>Idioma</label>
+          <select id="f-fds-idioma">
+            <option value="es">Español</option>
+            <option value="en">Inglés (requiere traducción)</option>
+            <option value="otro">Otro idioma</option>
+          </select>
+        </div>
+      </div>
+      <!-- PDF UPLOAD -->
+      <div style="margin-top:12px">
+        <label style="font-size:11px;font-weight:500;color:var(--text-secondary);letter-spacing:.3px;text-transform:uppercase;display:block;margin-bottom:6px">Archivo FDS (PDF) — cargar directamente</label>
+        <div id="pdf-dropzone" onclick="document.getElementById('f-fds-pdf').click()" style="border:2px dashed var(--border-bright);border-radius:var(--radius);padding:18px;text-align:center;cursor:pointer;transition:all var(--transition);background:var(--bg-base)">
+          <div id="pdf-drop-inner">
+            <i class="fa-solid fa-file-pdf" style="font-size:28px;color:var(--accent-orange);display:block;margin-bottom:8px"></i>
+            <div style="font-size:13px;font-weight:500;color:var(--text-primary)">Haga clic para seleccionar el PDF de la FDS</div>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:4px">Solo archivos .pdf · Máx. 15 MB · Se almacena codificado en el sistema</div>
+          </div>
+          <div id="pdf-loaded-info" style="display:none">
+            <i class="fa-solid fa-circle-check" style="font-size:22px;color:var(--safe);display:block;margin-bottom:6px"></i>
+            <div id="pdf-filename" style="font-size:13px;font-weight:500;color:var(--safe)"></div>
+            <div id="pdf-filesize" style="font-size:11px;color:var(--text-muted);margin-top:2px"></div>
+            <button type="button" onclick="clearPDF(event)" style="margin-top:8px;background:transparent;border:1px solid var(--danger);color:var(--danger);border-radius:var(--radius);padding:4px 10px;font-size:11px;cursor:pointer;font-family:inherit">
+              <i class="fa-solid fa-trash"></i> Quitar PDF
+            </button>
+          </div>
+        </div>
+        <input type="file" id="f-fds-pdf" accept=".pdf" style="display:none" onchange="handlePDFUpload(event)">
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="form-section-title"><i class="fa-solid fa-notes-medical" style="color:var(--accent-orange)"></i> Información adicional</div>
+      <div class="form-group" style="margin-bottom:12px">
+        <label>EPP requeridos</label>
+        <input type="text" id="f-epp" placeholder="Ej: Guantes nitrilo, gafas protectoras, respirador con filtro ácidos">
+      </div>
+      <div class="form-group">
+        <label>Observaciones / instrucciones especiales</label>
+        <textarea id="f-obs" placeholder="Incompatibilidades específicas, condiciones de almacenamiento, primeros auxilios especiales..."></textarea>
+      </div>
+    </div>
+
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-secondary" onclick="closeForm()">Cancelar</button>
+    <button class="btn btn-primary" onclick="saveChemical()"><i class="fa-solid fa-floppy-disk"></i> Guardar sustancia</button>
+  </div>
+</div>
+</div>
+
+<!-- ===== TOAST CONTAINER ===== -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- ===== IMPORT INPUT ===== -->
+<input type="file" id="import-file" accept=".json" style="display:none" onchange="handleImport(event)">
+
+<script>
+// ============================================================
+// DATA & STATE
+// ============================================================
+let currentPDFBase64 = null; // holds base64 of PDF being registered
+// ── Pictogramas GHS oficiales — rombo rojo, figura negra, fondo blanco ──
+// Fieles a la imagen de referencia Res. 0773/2021 / Decreto 1496/2018
+const PICTOGRAMS = [
+  {
+    id:'GHS01', label:'Peligro de Explosivos', clase:'explosivo', color:'#cc0000',
+    desc:'Explosivos inestables, explosivos de las divisiones 1.1–1.6, sustancias y mezclas autorreactivas tipo A/B, peróxidos orgánicos tipo A/B.',
+    svg:`<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="100,4 196,100 100,196 4,100" fill="white" stroke="#cc0000" stroke-width="10"/>
+      <!-- bomba explotando -->
+      <circle cx="90" cy="115" r="28" fill="#111"/>
+      <path d="M90 115 L68 78 M90 115 L110 72 M90 115 L125 88 M90 115 L55 90" stroke="#111" stroke-width="3" fill="none"/>
+      <!-- mecha -->
+      <path d="M115 90 Q130 70 118 55 Q140 48 132 35" stroke="#111" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <!-- chispa -->
+      <circle cx="132" cy="33" r="5" fill="#111"/>
+      <path d="M128 28 L136 38 M124 35 L140 31" stroke="#111" stroke-width="3" stroke-linecap="round"/>
+      <!-- fragmentos explosión -->
+      <line x1="68" y1="78" x2="58" y2="62" stroke="#111" stroke-width="3" stroke-linecap="round"/>
+      <line x1="110" y1="72" x2="118" y2="56" stroke="#111" stroke-width="3" stroke-linecap="round"/>
+      <line x1="125" y1="88" x2="140" y2="80" stroke="#111" stroke-width="3" stroke-linecap="round"/>
+      <line x1="55" y1="90" x2="40" y2="82" stroke="#111" stroke-width="3" stroke-linecap="round"/>
+      <line x1="80" y1="75" x2="74" y2="60" stroke="#111" stroke-width="2.5" stroke-linecap="round"/>
+    </svg>`
+  },
+  {
+    id:'GHS02', label:'Inflamable', clase:'inflamable', color:'#cc0000',
+    desc:'Gases inflamables, aerosoles inflamables, líquidos inflamables, sólidos inflamables, sustancias pirofóricas, sustancias que experimentan calentamiento espontáneo.',
+    svg:`<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="100,4 196,100 100,196 4,100" fill="white" stroke="#cc0000" stroke-width="10"/>
+      <!-- llama principal -->
+      <path d="M100 160 C68 145 55 120 62 95 C67 110 76 110 79 100 C82 118 92 122 95 108 C98 122 104 125 108 112 C113 130 108 145 100 160Z" fill="#111"/>
+      <!-- llama interior más clara -->
+      <path d="M100 155 C78 143 70 124 75 105 C79 116 85 115 87 108 C89 118 94 120 96 112 C99 120 102 122 105 115 C109 126 106 142 100 155Z" fill="#444"/>
+      <!-- base/plataforma -->
+      <rect x="62" y="156" width="76" height="10" rx="3" fill="#111"/>
+    </svg>`
+  },
+  {
+    id:'GHS03', label:'Carburante (Oxidante)', clase:'comburente', color:'#cc0000',
+    desc:'Gases oxidantes, líquidos oxidantes, sólidos oxidantes. Pueden provocar o intensificar un incendio.',
+    svg:`<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="100,4 196,100 100,196 4,100" fill="white" stroke="#cc0000" stroke-width="10"/>
+      <!-- círculo con llama encima — carburante/oxidante -->
+      <circle cx="100" cy="118" r="32" fill="none" stroke="#111" stroke-width="7"/>
+      <!-- llama sobre el círculo -->
+      <path d="M100 88 C85 73 80 55 88 42 C91 52 97 51 99 44 C101 54 107 56 110 48 C114 62 108 76 100 88Z" fill="#111"/>
+      <!-- llama interna -->
+      <path d="M100 84 C89 72 86 58 92 48 C94 55 98 54 100 49 C102 56 106 57 108 52 C111 63 107 75 100 84Z" fill="#555"/>
+    </svg>`
+  },
+  {
+    id:'GHS04', label:'Gases bajo presión', clase:'gas-presion', color:'#cc0000',
+    desc:'Gases comprimidos, gases licuados, gases licuados refrigerados, gases disueltos. Pueden explotar si se calientan.',
+    svg:`<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="100,4 196,100 100,196 4,100" fill="white" stroke="#cc0000" stroke-width="10"/>
+      <!-- cilindro de gas horizontal con válvula -->
+      <!-- cuerpo cilindro -->
+      <rect x="48" y="95" width="95" height="42" rx="21" fill="#111"/>
+      <!-- cabeza izquierda -->
+      <ellipse cx="48" cy="116" rx="12" ry="21" fill="#333"/>
+      <!-- cabeza derecha -->
+      <ellipse cx="143" cy="116" rx="12" ry="21" fill="#222"/>
+      <!-- válvula arriba -->
+      <rect x="115" y="80" width="10" height="18" rx="3" fill="#111"/>
+      <rect x="108" y="77" width="24" height="7" rx="3" fill="#111"/>
+      <!-- brida -->
+      <rect x="45" y="110" width="110" height="12" rx="3" fill="#444"/>
+      <!-- reflejo/volumen -->
+      <ellipse cx="90" cy="103" rx="22" ry="6" fill="#555" opacity="0.5"/>
+    </svg>`
+  },
+  {
+    id:'GHS05', label:'Corrosión', clase:'corrosivo', color:'#cc0000',
+    desc:'Corrosión cutánea, lesiones oculares graves, corrosión de los metales.',
+    svg:`<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="100,4 196,100 100,196 4,100" fill="white" stroke="#cc0000" stroke-width="10"/>
+      <!-- tubo izquierdo derramando sobre mano -->
+      <rect x="52" y="62" width="22" height="32" rx="4" fill="#111"/>
+      <path d="M52 94 Q48 110 38 124 L60 124 Q65 110 74 94Z" fill="#111" opacity="0.85"/>
+      <!-- gotas corrosivas izquierda -->
+      <ellipse cx="47" cy="130" rx="6" ry="4" fill="#111" opacity="0.7"/>
+      <ellipse cx="58" cy="136" rx="5" ry="3" fill="#111" opacity="0.6"/>
+      <!-- superficie/metal corroído izquierda -->
+      <path d="M30 145 L75 145 L72 158 Q60 162 48 158 L30 158Z" fill="#111"/>
+      <path d="M38 145 Q42 136 50 140 Q55 132 62 138 Q68 130 74 138 L74 145" fill="#555" opacity="0.5"/>
+
+      <!-- tubo derecho derramando sobre mano -->
+      <rect x="126" y="62" width="22" height="32" rx="4" fill="#111"/>
+      <path d="M126 94 Q122 110 112 124 L134 124 Q139 110 148 94Z" fill="#111" opacity="0.85"/>
+      <!-- mano esquemática derecha -->
+      <path d="M108 118 Q100 115 98 122 Q102 130 108 128 L120 130 L125 125 Z" fill="#111"/>
+      <!-- dedos mano -->
+      <path d="M108 128 L106 142 M112 129 L111 144 M117 129 L117 143 M122 127 L123 141" stroke="#111" stroke-width="5" stroke-linecap="round"/>
+      <!-- gotas corrosivas mano -->
+      <ellipse cx="113" cy="118" rx="4" ry="3" fill="#444" opacity="0.7"/>
+    </svg>`
+  },
+  {
+    id:'GHS06', label:'Toxicidad', clase:'toxico', color:'#cc0000',
+    desc:'Toxicidad aguda (oral, cutánea, por inhalación) de categorías 1, 2 y 3.',
+    svg:`<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="100,4 196,100 100,196 4,100" fill="white" stroke="#cc0000" stroke-width="10"/>
+      <!-- cráneo -->
+      <path d="M100 52 C72 52 55 70 55 92 C55 110 65 122 80 126 L80 145 L120 145 L120 126 C135 122 145 110 145 92 C145 70 128 52 100 52Z" fill="#111"/>
+      <!-- ojos (cuencas vacías — blancas) -->
+      <ellipse cx="84" cy="90" rx="13" ry="13" fill="white"/>
+      <ellipse cx="116" cy="90" rx="13" ry="13" fill="white"/>
+      <!-- nariz (triángulo invertido) -->
+      <polygon points="100,108 93,120 107,120" fill="white"/>
+      <!-- dientes -->
+      <line x1="86" y1="145" x2="86" y2="130" stroke="white" stroke-width="6"/>
+      <line x1="100" y1="145" x2="100" y2="130" stroke="white" stroke-width="6"/>
+      <line x1="114" y1="145" x2="114" y2="130" stroke="white" stroke-width="6"/>
+      <!-- tibia izquierda -->
+      <line x1="68" y1="158" x2="95" y2="135" stroke="#111" stroke-width="10" stroke-linecap="round"/>
+      <circle cx="66" cy="160" r="8" fill="#111"/>
+      <circle cx="97" cy="133" r="8" fill="#111"/>
+      <!-- tibia derecha (cruzada) -->
+      <line x1="132" y1="158" x2="105" y2="135" stroke="#111" stroke-width="10" stroke-linecap="round"/>
+      <circle cx="134" cy="160" r="8" fill="#111"/>
+      <circle cx="103" cy="133" r="8" fill="#111"/>
+    </svg>`
+  },
+  {
+    id:'GHS07', label:'Químico Nocivo', clase:'nocivo', color:'#cc0000',
+    desc:'Toxicidad aguda cat. 4, irritación cutánea cat. 2, irritación ocular cat. 2A, sensibilización cutánea cat. 1, toxicidad por aspiración cat. 3.',
+    svg:`<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="100,4 196,100 100,196 4,100" fill="white" stroke="#cc0000" stroke-width="10"/>
+      <!-- signo de exclamación -->
+      <!-- cuerpo del signo -->
+      <rect x="88" y="55" width="24" height="85" rx="10" fill="#111"/>
+      <!-- punto abajo -->
+      <circle cx="100" cy="158" r="13" fill="#111"/>
+    </svg>`
+  },
+  {
+    id:'GHS08', label:'Daño al Medio Ambiente', clase:'ambiental', color:'#cc0000',
+    desc:'Peligros para el medio ambiente acuático (agudo y crónico), peligros para la capa de ozono.',
+    svg:`<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="100,4 196,100 100,196 4,100" fill="white" stroke="#cc0000" stroke-width="10"/>
+      <!-- árbol muerto/sin hojas -->
+      <line x1="100" y1="155" x2="100" y2="90" stroke="#111" stroke-width="8" stroke-linecap="round"/>
+      <!-- ramas principales -->
+      <line x1="100" y1="105" x2="72" y2="80" stroke="#111" stroke-width="6" stroke-linecap="round"/>
+      <line x1="100" y1="115" x2="130" y2="85" stroke="#111" stroke-width="6" stroke-linecap="round"/>
+      <!-- ramillas -->
+      <line x1="72" y1="80" x2="58" y2="66" stroke="#111" stroke-width="4" stroke-linecap="round"/>
+      <line x1="72" y1="80" x2="78" y2="62" stroke="#111" stroke-width="4" stroke-linecap="round"/>
+      <line x1="130" y1="85" x2="144" y2="70" stroke="#111" stroke-width="4" stroke-linecap="round"/>
+      <line x1="130" y1="85" x2="122" y2="68" stroke="#111" stroke-width="4" stroke-linecap="round"/>
+      <line x1="100" y1="95" x2="112" y2="78" stroke="#111" stroke-width="4" stroke-linecap="round"/>
+      <!-- agua / olas con pez muerto -->
+      <path d="M40 158 Q60 148 80 158 Q100 168 120 158 Q140 148 160 158 L160 172 L40 172Z" fill="#111"/>
+      <!-- pez muerto flotando -->
+      <ellipse cx="78" cy="152" rx="18" ry="9" fill="#111"/>
+      <polygon points="96,148 110,142 110,162" fill="#111"/>
+      <!-- ojo X del pez -->
+      <line x1="72" y1="148" x2="78" y2="154" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="78" y1="148" x2="72" y2="154" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+    </svg>`
+  },
+  {
+    id:'GHS09', label:'Peligro para la Salud', clase:'sensitizante', color:'#cc0000',
+    desc:'Carcinogenicidad, mutagenicidad en células germinales, toxicidad para la reproducción, sensibilización respiratoria, toxicidad sistémica en órganos diana (STOT).',
+    svg:`<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="100,4 196,100 100,196 4,100" fill="white" stroke="#cc0000" stroke-width="10"/>
+      <!-- figura humana con rayos/daño en pecho (STOT/carcinógeno) -->
+      <!-- cabeza -->
+      <circle cx="100" cy="62" r="16" fill="#111"/>
+      <!-- cuerpo -->
+      <path d="M80 82 Q100 78 120 82 L118 130 L82 130Z" fill="#111"/>
+      <!-- brazos -->
+      <line x1="80" y1="88" x2="55" y2="112" stroke="#111" stroke-width="9" stroke-linecap="round"/>
+      <line x1="120" y1="88" x2="145" y2="112" stroke="#111" stroke-width="9" stroke-linecap="round"/>
+      <!-- piernas -->
+      <line x1="90" y1="130" x2="84" y2="162" stroke="#111" stroke-width="9" stroke-linecap="round"/>
+      <line x1="110" y1="130" x2="116" y2="162" stroke="#111" stroke-width="9" stroke-linecap="round"/>
+      <!-- estrella/rayos daño en pecho — símbolo de afectación órgano diana -->
+      <path d="M100 100 L96 89 L100 93 L104 89Z" fill="white"/>
+      <path d="M100 100 L111 96 L107 100 L111 104Z" fill="white"/>
+      <path d="M100 100 L104 111 L100 107 L96 111Z" fill="white"/>
+      <path d="M100 100 L89 104 L93 100 L89 96Z" fill="white"/>
+      <path d="M100 100 L108 91 L106 96 L111 94Z" fill="white"/>
+      <path d="M100 100 L109 109 L104 107 L106 112Z" fill="white"/>
+      <path d="M100 100 L92 109 L94 104 L89 106Z" fill="white"/>
+      <path d="M100 100 L91 91 L96 93 L94 88Z" fill="white"/>
+    </svg>`
+  },
+];
+
+const COMPAT_MATRIX = {
+  explosivo:   {explosivo:'I',inflamable:'I',comburente:'I',corrosivo:'P','gas-presion':'I',toxico:'P',nocivo:'P',sensitizante:'P',ambiental:'A',reactivo:'I'},
+  inflamable:  {explosivo:'I',inflamable:'P',comburente:'I',corrosivo:'P','gas-presion':'P',toxico:'P',nocivo:'A',sensitizante:'A',ambiental:'A',reactivo:'I'},
+  comburente:  {explosivo:'I',inflamable:'I',comburente:'A',corrosivo:'P','gas-presion':'P',toxico:'P',nocivo:'A',sensitizante:'P',ambiental:'A',reactivo:'I'},
+  corrosivo:   {explosivo:'P',inflamable:'P',comburente:'P',corrosivo:'P','gas-presion':'P',toxico:'P',nocivo:'A',sensitizante:'A',ambiental:'P',reactivo:'I'},
+  'gas-presion':{explosivo:'I',inflamable:'P',comburente:'P',corrosivo:'P','gas-presion':'P',toxico:'P',nocivo:'A',sensitizante:'A',ambiental:'A',reactivo:'P'},
+  toxico:      {explosivo:'P',inflamable:'P',comburente:'P',corrosivo:'P','gas-presion':'P',toxico:'A',nocivo:'A',sensitizante:'A',ambiental:'A',reactivo:'P'},
+  nocivo:      {explosivo:'P',inflamable:'A',comburente:'A',corrosivo:'A','gas-presion':'A',toxico:'A',nocivo:'A',sensitizante:'A',ambiental:'A',reactivo:'A'},
+  sensitizante:{explosivo:'P',inflamable:'A',comburente:'P',corrosivo:'A','gas-presion':'A',toxico:'A',nocivo:'A',sensitizante:'A',ambiental:'A',reactivo:'P'},
+  ambiental:   {explosivo:'A',inflamable:'A',comburente:'A',corrosivo:'P','gas-presion':'A',toxico:'A',nocivo:'A',sensitizante:'A',ambiental:'A',reactivo:'P'},
+  reactivo:    {explosivo:'I',inflamable:'I',comburente:'I',corrosivo:'I','gas-presion':'P',toxico:'P',nocivo:'A',sensitizante:'P',ambiental:'P',reactivo:'P'},
+};
+
+const CLASE_LABEL = {
+  explosivo:'Explosivo',inflamable:'Inflamable',comburente:'Comburente / Oxidante',
+  'gas-presion':'Gas a presión',corrosivo:'Corrosivo',toxico:'Tóxico agudo',
+  nocivo:'Nocivo / Irritante',sensitizante:'CMR / Sensibilizante',
+  ambiental:'Peligro ambiental',reactivo:'Reactivo / Inestable'
+};
+const CLASE_PICT = {
+  explosivo:'GHS01',inflamable:'GHS02',comburente:'GHS03','gas-presion':'GHS04',
+  corrosivo:'GHS05',toxico:'GHS06',nocivo:'GHS07',ambiental:'GHS08',sensitizante:'GHS09',reactivo:'GHS01'
+};
+
+const FDS_SECTIONS = [
+  {n:'01',t:'Identificación del producto',d:'Nombre, uso previsto, identificador del proveedor, número de emergencia'},
+  {n:'02',t:'Identificación de peligros',d:'Clasificación GHS, elementos de etiqueta, frases H y P, pictogramas'},
+  {n:'03',t:'Composición / información sobre componentes',d:'Mezclas o sustancias puras, nº CAS, concentraciones'},
+  {n:'04',t:'Primeros auxilios',d:'Instrucciones por ruta de exposición: inhalación, piel, ojos, ingestión'},
+  {n:'05',t:'Medidas de lucha contra incendios',d:'Medios de extinción adecuados, peligros especiales, EPP para bomberos'},
+  {n:'06',t:'Medidas en caso de vertido accidental',d:'Precauciones, equipos de protección, métodos de limpieza y contención'},
+  {n:'07',t:'Manipulación y almacenamiento',d:'Condiciones seguras, incompatibilidades, temperatura, ventilación requerida'},
+  {n:'08',t:'Controles de exposición / protección personal',d:'TLV/OEL, EPP requeridos: respiratorio, ocular, dérmico, corporal'},
+  {n:'09',t:'Propiedades físicas y químicas',d:'Apariencia, pH, punto de ebullición/fusión, inflamabilidad, solubilidad'},
+  {n:'10',t:'Estabilidad y reactividad',d:'Condiciones a evitar, materiales incompatibles, productos peligrosos de descomposición'},
+  {n:'11',t:'Información toxicológica',d:'Vías de exposición, síntomas, efectos agudos/crónicos, valores DL50'},
+  {n:'12',t:'Información ecológica',d:'Toxicidad acuática, persistencia, bioacumulación, movilidad en suelo'},
+  {n:'13',t:'Consideraciones relativas a la eliminación',d:'Métodos de tratamiento de residuos, disposición de envases contaminados'},
+  {n:'14',t:'Información relativa al transporte',d:'Número ONU, clase de peligro, grupo de embalaje, IATA/IMDG/ADR'},
+  {n:'15',t:'Información sobre la reglamentación',d:'Reglamentación nacional e internacional aplicable, restricciones de uso'},
+  {n:'16',t:'Otra información',d:'Fecha de emisión, revisión, cambios respecto a versión anterior, referencias'},
+];
+
+const NORMATIVA = [
+  {icon:'fa-file-contract',titulo:'Resolución 0773 de 2021',ref:'MINSALUD / MINTRABAJO',tipo:'obligatorio',desc:'Establece los requisitos para la elaboración, revisión, distribución y acceso a las Fichas de Datos de Seguridad (FDS) de productos químicos peligrosos en Colombia. Exige FDS en español, con las 16 secciones del GHS Rev.8/9, accesibles para todos los trabajadores que manipulan sustancias peligrosas.'},
+  {icon:'fa-book-open',titulo:'Decreto 1496 de 2018',ref:'Presidencia de la República',tipo:'obligatorio',desc:'Adopta el Sistema Globalmente Armonizado (SGA/GHS) de clasificación y etiquetado de productos químicos en Colombia. Define el cronograma de implementación, los 9 pictogramas obligatorios, las frases H y P, y las obligaciones de fabricantes, importadores y empleadores.'},
+  {icon:'fa-helmet-safety',titulo:'Decreto 1072 de 2015 — SG-SST',ref:'Ministerio del Trabajo',tipo:'obligatorio',desc:'Artículo 2.2.4.6.15 y ss.: Identificación de peligros, evaluación y valoración de riesgos. El inventario de sustancias químicas es insumo obligatorio del panorama de factores de riesgo. Artículo 2.2.4.6.24: Medidas de prevención y control frente al riesgo químico.'},
+  {icon:'fa-clipboard-check',titulo:'Resolución 0312 de 2019',ref:'Ministerio del Trabajo',tipo:'obligatorio',desc:'Estándar 2.8.1: identificar sustancias catalogadas como carcinógenas con manipulación en el ambiente laboral. Estándar 4.1.1: evaluación y categorización de los peligros, incluyendo el riesgo químico, como parte de los estándares mínimos del SG-SST para empleadores.'},
+  {icon:'fa-building-shield',titulo:'Resolución 2400 de 1979',ref:'Ministerio del Trabajo',tipo:'referencia',desc:'Título III — Almacenamiento, manipulación y transporte de sustancias peligrosas. Base normativa histórica vigente que establece requerimientos de señalización, compatibilidad de almacenamiento, recipientes adecuados, sistemas de ventilación y control de derrames en lugares de trabajo.'},
+  {icon:'fa-globe',titulo:'GHS Rev. 9 — ONU',ref:'Naciones Unidas — ECOSOC',tipo:'referencia',desc:'Séptima edición del Sistema Globalmente Armonizado. Define los criterios de clasificación de peligros físicos, para la salud y para el medio ambiente; los elementos de comunicación (etiquetas y FDS); y las directrices de implementación adoptadas por Colombia mediante el Decreto 1496/2018.'},
+  {icon:'fa-fire-extinguisher',titulo:'NFPA 400 — Hazardous Materials Code',ref:'National Fire Protection Association',tipo:'referencia',desc:'Código de referencia internacional para el almacenamiento seguro y compatible de materiales peligrosos. Complementa la matriz de compatibilidad química y los requisitos de separación por clase de peligro, siendo referente técnico para el diseño de bodegas y sistemas de almacenamiento.'},
+  {icon:'fa-leaf',titulo:'Ley 1252 de 2008',ref:'Congreso de la República',tipo:'referencia',desc:'Norma prohibitiva en materia ambiental relacionada con residuos o desechos peligrosos (RESPEL). Regula la generación, gestión, manejo, almacenamiento, transporte, tratamiento y disposición final de residuos o desechos peligrosos de origen químico en Colombia.'},
+];
+
+// ============================================================
+// STATE
+// ============================================================
+let chemicals = JSON.parse(localStorage.getItem('sga-chem-v2') || '[]');
+let editIndex = -1;
+let selectedPicts = [];
+let currentFilter = 'all';
+
+// ============================================================
+// PAGE NAVIGATION
+// ============================================================
+const PAGE_TITLES = {
+  dashboard:'Dashboard',inventario:'Inventario de sustancias',
+  matriz:'Matriz de compatibilidad',fds:'Fichas de datos de seguridad',
+  normativa:'Marco normativo',pictogramas:'Pictogramas GHS'
+};
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  event.currentTarget.classList.add('active');
+  document.getElementById('topbar-title').textContent = PAGE_TITLES[id] || id;
+  if (id === 'dashboard') renderDashboard();
+  if (id === 'inventario') renderCards();
+  if (id === 'matriz') renderMatrix();
+  if (id === 'fds') renderFDS();
+  if (id === 'normativa') renderNormativa();
+  if (id === 'pictogramas') renderPictogramasRef();
+}
+
+// ============================================================
+// PICTOGRAM SELECTOR BUILD
+// ============================================================
+function buildPictSelector() {
+  const g = document.getElementById('pict-selector');
+  g.innerHTML = '';
+  PICTOGRAMS.forEach(p => {
+    const wrap = document.createElement('div');
+    const inner = document.createElement('div');
+    inner.className = 'pict-opt' + (selectedPicts.includes(p.id) ? ' selected' : '');
+    inner.innerHTML = p.svg;
+    inner.title = p.label;
+    inner.onclick = () => {
+      if (selectedPicts.includes(p.id)) {
+        selectedPicts = selectedPicts.filter(x => x !== p.id);
+        inner.classList.remove('selected');
+      } else {
+        selectedPicts.push(p.id);
+        inner.classList.add('selected');
+      }
+    };
+    wrap.appendChild(inner);
+    const lbl = document.createElement('div');
+    lbl.className = 'pict-label';
+    lbl.textContent = p.label.split(' ')[0];
+    wrap.appendChild(lbl);
+    g.appendChild(wrap);
+  });
+}
+
+function autoSelectPictogram() {
+  const clase = document.getElementById('f-clase').value;
+  if (clase && CLASE_PICT[clase]) {
+    const pid = CLASE_PICT[clase];
+    if (!selectedPicts.includes(pid)) {
+      selectedPicts.push(pid);
+      buildPictSelector();
+    }
+  }
+}
+
+// ============================================================
+// MODAL OPEN / CLOSE
+// ============================================================
+function openForm(idx = -1) {
+  editIndex = idx;
+  selectedPicts = [];
+  const fields = ['f-nombre','f-cas','f-formula','f-sinonimo','f-area','f-proveedor',
+    'f-cantidad','f-ubicacion','f-frases-h','f-frases-p','f-fds-ref','f-fds-ver','f-epp','f-obs','f-recipiente'];
+  if (idx >= 0) {
+    const c = chemicals[idx];
+    fields.forEach(id => { const el = document.getElementById(id); if (el) el.value = c[id.replace('f-','')] || ''; });
+    document.getElementById('f-clase').value = c.clase || '';
+    document.getElementById('f-nivel').value = c.nivel || 'alto';
+    document.getElementById('f-estado').value = c.estado || 'liquido';
+    document.getElementById('f-fds').value = c.fds || 'si';
+    document.getElementById('f-fds-idioma').value = c.fdsIdioma || 'es';
+    selectedPicts = [...(c.pictogramas || [])];
+    document.getElementById('modal-title').textContent = 'Editar sustancia';
+    // Restore PDF if exists
+    if (c.fdsBase64) {
+      currentPDFBase64 = c.fdsBase64;
+      document.getElementById('pdf-drop-inner').style.display = 'none';
+      document.getElementById('pdf-loaded-info').style.display = 'block';
+      document.getElementById('pdf-filename').textContent = c['fds-ref'] || 'FDS cargada';
+      document.getElementById('pdf-filesize').textContent = 'PDF existente';
+      document.getElementById('pdf-dropzone').style.borderColor = 'var(--safe)';
+    } else {
+      resetPDFZone();
+    }
+  } else {
+    fields.forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+    document.getElementById('f-clase').value = '';
+    document.getElementById('f-nivel').value = 'alto';
+    document.getElementById('f-estado').value = 'liquido';
+    document.getElementById('f-fds').value = 'no';
+    document.getElementById('f-fds-idioma').value = 'es';
+    document.getElementById('modal-title').textContent = 'Registrar sustancia química';
+  }
+  buildPictSelector();
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function closeForm() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  resetPDFZone();
+}
+
+// ============================================================
+// PDF UPLOAD
+// ============================================================
+function handlePDFUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (!file.name.toLowerCase().endsWith('.pdf')) { showToast('Solo se aceptan archivos PDF', 'error'); return; }
+  if (file.size > 15 * 1024 * 1024) { showToast('El archivo supera el límite de 15 MB', 'error'); return; }
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    currentPDFBase64 = ev.target.result; // data:application/pdf;base64,...
+    // Auto-fill filename field
+    const refField = document.getElementById('f-fds-ref');
+    if (!refField.value) refField.value = file.name;
+    // Update dropzone UI
+    document.getElementById('pdf-drop-inner').style.display = 'none';
+    document.getElementById('pdf-loaded-info').style.display = 'block';
+    document.getElementById('pdf-filename').textContent = file.name;
+    document.getElementById('pdf-filesize').textContent = (file.size / 1024).toFixed(1) + ' KB';
+    document.getElementById('pdf-dropzone').style.borderColor = 'var(--safe)';
+    document.getElementById('f-fds').value = 'si';
+    showToast('PDF cargado correctamente', 'success');
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearPDF(e) {
+  e.stopPropagation();
+  currentPDFBase64 = null;
+  document.getElementById('f-fds-pdf').value = '';
+  document.getElementById('pdf-drop-inner').style.display = 'block';
+  document.getElementById('pdf-loaded-info').style.display = 'none';
+  document.getElementById('pdf-dropzone').style.borderColor = 'var(--border-bright)';
+}
+
+function resetPDFZone() {
+  currentPDFBase64 = null;
+  const fi = document.getElementById('f-fds-pdf'); if(fi) fi.value = '';
+  const di = document.getElementById('pdf-drop-inner'); if(di) di.style.display = 'block';
+  const li = document.getElementById('pdf-loaded-info'); if(li) li.style.display = 'none';
+  const dz = document.getElementById('pdf-dropzone'); if(dz) dz.style.borderColor = 'var(--border-bright)';
+}
+
+function openPDF(base64) {
+  if (!base64) return;
+  const win = window.open();
+  win.document.write(`<iframe src="${base64}" style="width:100%;height:100vh;border:none"></iframe>`);
+}
+
+// ============================================================
+// SAVE
+// ============================================================
+function saveChemical() {
+  const nombre = document.getElementById('f-nombre').value.trim();
+  const clase = document.getElementById('f-clase').value;
+  if (!nombre) { showToast('El nombre es obligatorio', 'error'); return; }
+  if (!clase) { showToast('Seleccione la clase de peligro GHS', 'error'); return; }
+  const c = {
+    nombre, cas: v('f-cas'), formula: v('f-formula'), sinonimo: v('f-sinonimo'),
+    area: v('f-area'), proveedor: v('f-proveedor'), clase, nivel: v('f-nivel'),
+    estado: v('f-estado'), cantidad: v('f-cantidad'), recipiente: v('f-recipiente'),
+    ubicacion: v('f-ubicacion'), pictogramas: [...selectedPicts],
+    'frases-h': v('f-frases-h'), 'frases-p': v('f-frases-p'),
+    fds: v('f-fds'), 'fds-ref': v('f-fds-ref'), 'fds-ver': v('f-fds-ver'),
+    fdsIdioma: v('f-fds-idioma'), epp: v('f-epp'), obs: v('f-obs'),
+    fdsBase64: currentPDFBase64 || (editIndex >= 0 ? chemicals[editIndex].fdsBase64 : null),
+    fecha: new Date().toLocaleDateString('es-CO'),
+    fechaISO: new Date().toISOString()
+  };
+  if (editIndex >= 0) chemicals[editIndex] = c;
+  else chemicals.push(c);
+  save();
+  closeForm();
+  renderCards();
+  updateStats();
+  showToast(editIndex >= 0 ? 'Sustancia actualizada' : 'Sustancia registrada', 'success');
+}
+
+function v(id) { const el = document.getElementById(id); return el ? el.value.trim() : ''; }
+
+function save() { localStorage.setItem('sga-chem-v2', JSON.stringify(chemicals)); }
+
+function deleteChemical(idx) {
+  if (!confirm(`¿Eliminar "${chemicals[idx].nombre}" del inventario? Esta acción no se puede deshacer.`)) return;
+  chemicals.splice(idx, 1);
+  save();
+  renderCards();
+  updateStats();
+  renderDashboard();
+  showToast('Sustancia eliminada', 'info');
+}
+
+// ============================================================
+// STATS
+// ============================================================
+function updateStats() {
+  const total = chemicals.length;
+  const fds = chemicals.filter(c => c.fds === 'si').length;
+  const alto = chemicals.filter(c => c.nivel === 'alto').length;
+  let incompat = 0;
+  for (let i = 0; i < chemicals.length; i++)
+    for (let j = i + 1; j < chemicals.length; j++) {
+      const r = (COMPAT_MATRIX[chemicals[i].clase] || {})[chemicals[j].clase];
+      if (r === 'I') incompat++;
+    }
+  document.getElementById('st-total').textContent = total;
+  document.getElementById('st-fds').textContent = fds;
+  document.getElementById('st-alto').textContent = alto;
+  document.getElementById('st-incompat').textContent = incompat;
+  const pct = total ? Math.round((fds / total) * 100) : 0;
+  document.getElementById('fds-pct').textContent = pct + '%';
+  document.getElementById('fds-progress').style.width = pct + '%';
+  document.getElementById('nav-badge-inv').textContent = total;
+  document.getElementById('nav-badge-fds').textContent = fds;
+}
+
+// ============================================================
+// DASHBOARD
+// ============================================================
+function renderDashboard() {
+  updateStats();
+  const recent = [...chemicals].sort((a, b) => (b.fechaISO || '').localeCompare(a.fechaISO || '')).slice(0, 5);
+  const list = document.getElementById('recent-list');
+  if (!recent.length) {
+    list.innerHTML = '<p style="font-size:13px;color:var(--text-muted);text-align:center;padding:16px">No hay sustancias registradas aún.</p>';
+    return;
+  }
+  list.innerHTML = recent.map((c, i) => {
+    const pict = PICTOGRAMS.find(p => c.pictogramas && c.pictogramas[0] === p.id);
+    return `<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);">
+      <div style="width:32px;height:32px;background:white;border-radius:6px;padding:2px;flex-shrink:0;border:1px solid var(--border-bright)">${pict ? pict.svg : '<svg viewBox="0 0 24 24"><path d="M12 2v8l3 3-3 3v6M8 7H6M8 17H6" stroke="#666" fill="none" stroke-width="1.5"/></svg>'}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:500;color:var(--text-primary)">${c.nombre}${c.formula ? ` <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--accent-orange)">${c.formula}</span>` : ''}</div>
+        <div style="font-size:11px;color:var(--text-secondary)">${CLASE_LABEL[c.clase] || c.clase} · ${c.area || 'Sin área'}</div>
+      </div>
+      <div style="flex-shrink:0">
+        <span class="nivel-badge nivel-${c.nivel}">${c.nivel}</span>
+      </div>
+      <div style="font-size:11px;color:var(--text-muted);flex-shrink:0">${c.fecha || ''}</div>
+    </div>`;
+  }).join('');
+}
+
+// ============================================================
+// INVENTORY RENDER
+// ============================================================
+function filterCards(f) {
+  currentFilter = f;
+  document.querySelectorAll('[id^="f-"]').forEach(b => b && b.classList && b.classList.remove && b.id.startsWith('f-') && b.tagName === 'BUTTON' && b.classList.remove('btn-primary') && b.classList.add('btn-secondary'));
+  const btn = document.getElementById(f === 'all' ? 'f-all' : f === 'alto' ? 'f-alto' : 'f-sinfds');
+  if (btn) { btn.classList.remove('btn-secondary'); btn.classList.add('btn-primary'); }
+  renderCards();
+}
+
+function globalSearch() {
+  showPage.call({currentTarget: document.querySelector('.nav-item:nth-child(2)')}, 'inventario');
+  renderCards();
+}
+
+function renderCards() {
+  const q = (document.getElementById('global-search').value || '').toLowerCase();
+  let filtered = chemicals.filter(c => {
+    const matchQ = !q || c.nombre.toLowerCase().includes(q) || (c.cas || '').includes(q) || (c.area || '').toLowerCase().includes(q) || (CLASE_LABEL[c.clase] || '').toLowerCase().includes(q) || (c.formula || '').toLowerCase().includes(q);
+    const matchF = currentFilter === 'all' || (currentFilter === 'alto' && c.nivel === 'alto') || (currentFilter === 'sin-fds' && c.fds !== 'si');
+    return matchQ && matchF;
+  });
+
+  const cont = document.getElementById('cards-container');
+  if (!chemicals.length) {
+    cont.innerHTML = `<div class="empty-state">
+      <span class="empty-icon"><i class="fa-solid fa-flask"></i></span>
+      <h3>Inventario vacío</h3>
+      <p>Comience registrando la primera sustancia química de su instalación.</p>
+      <button class="btn btn-primary" onclick="openForm()"><i class="fa-solid fa-plus"></i> Registrar primera sustancia</button>
+    </div>`;
+    return;
+  }
+  if (!filtered.length) {
+    cont.innerHTML = `<div class="empty-state"><span class="empty-icon"><i class="fa-solid fa-magnifying-glass"></i></span><h3>Sin resultados</h3><p>No se encontraron sustancias que coincidan con el filtro actual.</p></div>`;
+    return;
+  }
+
+  const CARD_ACCENT = {alto:'var(--danger)',medio:'var(--warning)',bajo:'var(--safe)'};
+
+  cont.innerHTML = `<div class="cards-grid">${filtered.map((c) => {
+    const realIdx = chemicals.indexOf(c);
+    const picts = (c.pictogramas || []).map(pid => {
+      const p = PICTOGRAMS.find(x => x.id === pid);
+      return p ? `<div class="pict-item" title="${p.label}">${p.svg}</div>` : '';
+    }).join('');
+    const fdsHtml = c.fds === 'si'
+      ? `<span class="fds-tag fds-yes"><i class="fa-solid fa-file-check"></i> FDS disponible${c['fds-ref'] ? ` — ${c['fds-ref']}` : ''}${c.fdsBase64 ? ` <button onclick="openPDF(chemicals[${realIdx}].fdsBase64)" style="background:rgba(63,185,80,.15);border:1px solid rgba(63,185,80,.3);color:var(--safe);border-radius:4px;padding:2px 7px;font-size:10px;cursor:pointer;margin-left:4px;font-family:inherit"><i class='fa-solid fa-eye'></i> Ver PDF</button>` : ''}</span>`
+      : c.fds === 'pendiente'
+      ? `<span class="fds-tag" style="background:rgba(210,153,34,.1);color:var(--warning);border:1px solid rgba(210,153,34,.2)"><i class="fa-solid fa-clock"></i> FDS pendiente</span>`
+      : `<span class="fds-tag fds-no"><i class="fa-solid fa-file-x"></i> Sin FDS — requiere gestión</span>`;
+    const hChips = c['frases-h'] ? c['frases-h'].split(',').slice(0,4).map(h => `<span class="chip chip-h">${h.trim()}</span>`).join('') : '';
+    const pChips = c['frases-p'] ? c['frases-p'].split(',').slice(0,3).map(p => `<span class="chip chip-p">${p.trim()}</span>`).join('') : '';
+    return `<div class="chem-card" style="--card-accent:${CARD_ACCENT[c.nivel] || 'var(--accent-orange)'}">
+      <div class="card-header">
+        <div>
+          <div class="card-name">${c.nombre}</div>
+          ${c.formula ? `<div class="card-formula">${c.formula}</div>` : ''}
+          <div class="card-cas">CAS: ${c.cas || '—'}${c.area ? ` · ${c.area}` : ''}</div>
+        </div>
+        <span class="nivel-badge nivel-${c.nivel}">${c.nivel}</span>
+      </div>
+      ${picts ? `<div class="picts-row">${picts}</div>` : ''}
+      <div class="card-chips">
+        <span class="chip chip-clase">${CLASE_LABEL[c.clase] || c.clase}</span>
+        ${hChips}${pChips}
+      </div>
+      ${c.cantidad || c.ubicacion ? `<div class="card-meta">
+        ${c.cantidad ? `<span><i class="fa-solid fa-box" style="color:var(--text-muted)"></i>${c.cantidad}</span>` : ''}
+        ${c.ubicacion ? `<span><i class="fa-solid fa-location-dot" style="color:var(--text-muted)"></i>${c.ubicacion}</span>` : ''}
+        ${c.epp ? `<span><i class="fa-solid fa-shield-halved" style="color:var(--text-muted)"></i>${c.epp}</span>` : ''}
+      </div>` : ''}
+      ${fdsHtml}
+      <div class="card-actions">
+        <button class="btn btn-ghost btn-sm" onclick="openForm(${realIdx})"><i class="fa-solid fa-pen-to-square"></i> Editar</button>
+        <button class="btn btn-danger" onclick="deleteChemical(${realIdx})"><i class="fa-solid fa-trash"></i></button>
+      </div>
+    </div>`;
+  }).join('')}</div>`;
+}
+
+// ============================================================
+// MATRIX
+// ============================================================
+function renderMatrix() {
+  const cont = document.getElementById('matriz-container');
+  const leg = document.getElementById('matrix-legend');
+  const chems = chemicals.filter(c => c.clase);
+  if (chems.length < 2) {
+    cont.innerHTML = `<div class="empty-state"><span class="empty-icon"><i class="fa-solid fa-table-cells"></i></span><h3>Datos insuficientes</h3><p>Registre al menos 2 sustancias con clase de peligro GHS para generar la matriz.</p></div>`;
+    leg.style.display = 'none'; return;
+  }
+  const ABBR = {explosivo:'Explos.',inflamable:'Inflam.',comburente:'Combu.',
+    'gas-presion':'Gas P.',corrosivo:'Corrosi.',toxico:'Tóxico',nocivo:'Nocivo',
+    sensitizante:'CMR',ambiental:'Amb.',reactivo:'Reactivo'};
+  const ML = {A:'COMPATIBLE',P:'PRECAUCIÓN',I:'INCOMPATIBLE'};
+  let html = `<div class="matrix-container"><table class="matrix-table"><thead><tr><th>Sustancia</th>`;
+  chems.forEach(c => html += `<th>${c.nombre.length > 14 ? c.nombre.substring(0, 13) + '…' : c.nombre}<br><span style="color:var(--accent-orange);font-weight:400">${ABBR[c.clase] || c.clase}</span></th>`);
+  html += `</tr></thead><tbody>`;
+  chems.forEach((a, i) => {
+    html += `<tr><td>${a.nombre}</td>`;
+    chems.forEach((b, j) => {
+      if (i === j) { html += `<td class="m-self">—</td>`; return; }
+      const r = (COMPAT_MATRIX[a.clase] || {})[b.clase] || 'A';
+      html += `<td><span class="m-${r}" style="display:inline-block;padding:3px 8px;border-radius:4px" title="${ML[r]}: ${a.nombre} + ${b.nombre}">${ML[r]}</span></td>`;
+    });
+    html += `</tr>`;
+  });
+  html += `</tbody></table></div>`;
+  cont.innerHTML = html;
+  leg.style.display = 'flex';
+}
+
+// ============================================================
+// FDS PAGE
+// ============================================================
+function renderFDS() {
+  // List
+  const listEl = document.getElementById('fds-inventario-list');
+  if (!chemicals.length) {
+    listEl.innerHTML = '<p style="font-size:13px;color:var(--text-muted)">No hay sustancias en el inventario.</p>';
+  } else {
+    listEl.innerHTML = `<h3 style="font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:12px"><i class="fa-solid fa-list-check" style="color:var(--accent-orange);margin-right:8px"></i>Estado FDS por sustancia</h3>
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden">
+    <table style="width:100%;border-collapse:collapse;font-size:13px">
+      <thead><tr style="background:var(--bg-base)">
+        <th style="padding:10px 14px;text-align:left;font-size:11px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border)">Sustancia</th>
+        <th style="padding:10px 14px;text-align:left;font-size:11px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border)">Clase GHS</th>
+        <th style="padding:10px 14px;text-align:center;font-size:11px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border)">Estado FDS</th>
+        <th style="padding:10px 14px;text-align:left;font-size:11px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border)">Referencia / archivo</th>
+        <th style="padding:10px 14px;text-align:center;font-size:11px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border)">Idioma</th>
+      </tr></thead>
+      <tbody>${chemicals.map((c, i) => {
+        const fdsTag = c.fds === 'si'
+          ? `<span style="background:rgba(63,185,80,.1);color:var(--safe);border:1px solid rgba(63,185,80,.2);padding:3px 8px;border-radius:4px;font-size:11px;font-weight:600">✅ Disponible</span>`
+          : c.fds === 'pendiente'
+          ? `<span style="background:rgba(210,153,34,.1);color:var(--warning);border:1px solid rgba(210,153,34,.2);padding:3px 8px;border-radius:4px;font-size:11px;font-weight:600">⏳ Pendiente</span>`
+          : `<span style="background:rgba(248,81,73,.1);color:var(--danger);border:1px solid rgba(248,81,73,.2);padding:3px 8px;border-radius:4px;font-size:11px;font-weight:600">❌ Sin FDS</span>`;
+        return `<tr style="border-bottom:1px solid var(--border)">
+          <td style="padding:10px 14px;font-weight:500;color:var(--text-primary)">${c.nombre}</td>
+          <td style="padding:10px 14px;color:var(--text-secondary)">${CLASE_LABEL[c.clase] || c.clase}</td>
+          <td style="padding:10px 14px;text-align:center">${fdsTag}</td>
+          <td style="padding:10px 14px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-muted)">
+            ${c['fds-ref'] || '—'}
+            ${c.fdsBase64 ? `<button onclick="openPDF(chemicals[${i}].fdsBase64)" style="margin-left:8px;background:rgba(56,139,253,.1);border:1px solid rgba(56,139,253,.2);color:var(--accent-blue);border-radius:4px;padding:3px 8px;font-size:10px;cursor:pointer;font-family:inherit"><i class='fa-solid fa-eye'></i> Ver PDF</button>` : ''}
+          </td>
+          <td style="padding:10px 14px;text-align:center;font-size:12px;color:var(--text-secondary)">${c.fdsIdioma === 'es' ? '🇨🇴 ES' : c.fdsIdioma === 'en' ? '🇺🇸 EN' : c.fdsIdioma || '—'}</td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table></div>`;
+  }
+
+  // 16 secciones
+  const grid = document.getElementById('fds-sections-grid');
+  grid.innerHTML = FDS_SECTIONS.map(s => `
+    <div class="fds-section-card">
+      <div class="sec-num">SECCIÓN ${s.n}</div>
+      <h5>${s.t}</h5>
+      <p>${s.d}</p>
+    </div>`).join('');
+}
+
+// ============================================================
+// NORMATIVA
+// ============================================================
+function renderNormativa() {
+  document.getElementById('norm-grid').innerHTML = NORMATIVA.map(n => `
+    <div class="norm-card">
+      <div class="norm-card-header">
+        <div class="norm-icon"><i class="fa-solid ${n.icon}"></i></div>
+        <div>
+          <h4>${n.titulo}</h4>
+          <div class="norm-ref">${n.ref}</div>
+        </div>
+      </div>
+      <p>${n.desc}</p>
+      <div>
+        <span class="norm-tag ${n.tipo}">${n.tipo === 'obligatorio' ? '⚡ Obligatorio' : '📚 Referencia'}</span>
+      </div>
+    </div>`).join('');
+}
+
+// ============================================================
+// PICTOGRAMS REFERENCE
+// ============================================================
+function renderPictogramasRef() {
+  document.getElementById('pict-reference-grid').innerHTML = PICTOGRAMS.map((p,i) => `
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;text-align:center;transition:all var(--transition);display:flex;flex-direction:column;align-items:center;gap:10px"
+         onmouseover="this.style.borderColor='var(--accent-orange)';this.style.transform='translateY(-2px)';this.style.boxShadow='var(--shadow)'"
+         onmouseout="this.style.borderColor='var(--border)';this.style.transform='none';this.style.boxShadow='none'">
+      <div style="width:90px;height:90px;background:white;border-radius:10px;padding:4px;border:2px solid #ddd;flex-shrink:0">${p.svg}</div>
+      <div style="font-size:10px;font-family:'IBM Plex Mono',monospace;color:var(--accent-orange);font-weight:700;letter-spacing:1px">${p.id}</div>
+      <div style="font-size:13px;font-weight:600;color:var(--text-primary);line-height:1.3">${p.label}</div>
+      <div style="font-size:11px;color:var(--text-secondary);line-height:1.5;text-align:center">${p.desc}</div>
+      <div style="margin-top:4px;padding:4px 10px;background:var(--accent-orange-glow);border:1px solid rgba(255,107,0,.2);border-radius:4px;font-size:10px;color:var(--accent-orange);font-family:'IBM Plex Mono',monospace">${CLASE_LABEL[p.clase] || p.clase}</div>
+    </div>`).join('');
+}
+
+// ============================================================
+// EXPORT / IMPORT
+// ============================================================
+function exportData() {
+  const data = { version: 2, exportDate: new Date().toISOString(), chemicals };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `sga-chem-backup-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  showToast('Datos exportados como JSON', 'success');
+}
+
+function importData() {
+  document.getElementById('import-file').click();
+}
+
+function handleImport(e) {
+  const file = e.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      const imported = data.chemicals || data;
+      if (!Array.isArray(imported)) throw new Error('Formato inválido');
+      chemicals = [...chemicals, ...imported];
+      save(); renderCards(); updateStats(); renderDashboard();
+      showToast(`${imported.length} sustancias importadas`, 'success');
+    } catch { showToast('Error al leer el archivo', 'error'); }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+
+// ============================================================
+// TOAST
+// ============================================================
+function showToast(msg, type = 'info') {
+  const icons = { success:'fa-circle-check', error:'fa-circle-x', info:'fa-circle-info' };
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.innerHTML = `<i class="fa-solid ${icons[type] || icons.info} toast-icon"></i><span>${msg}</span>`;
+  document.getElementById('toast-container').appendChild(t);
+  setTimeout(() => t.style.opacity = '0', 2800);
+  setTimeout(() => t.remove(), 3200);
+}
+
+// ============================================================
+// INIT
+// ============================================================
+renderDashboard();
+renderNormativa();
+renderPictogramasRef();
+</script>
+</body>
+</html>
